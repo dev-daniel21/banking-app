@@ -5,9 +5,9 @@ object Dollars {
 }
 
 class Dollars(val amount: Int) extends AnyVal {
-  def +(value: Int): Dollars = new Dollars(amount + value)
-  def -(value: Int): Dollars = new Dollars(amount - value)
-  def >(value: Int): Boolean = amount > value
+  def +(value: Dollars): Dollars = new Dollars(amount + value.amount)
+  def -(value: Dollars): Dollars = new Dollars(amount - value.amount)
+  def >(value: Dollars): Boolean = amount > value.amount
 
   override def toString: String = "$" + amount
 

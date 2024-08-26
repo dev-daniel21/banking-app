@@ -1,6 +1,9 @@
 package entity
 
+import java.util.UUID
+
 abstract class BankProducts {
+  val id: UUID = UUID.randomUUID()
   val productName: String
 
   override def toString: String = s"bank product = $productName"

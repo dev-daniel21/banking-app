@@ -1,45 +1,73 @@
-import entity.{Bank, BasicCheckingAccount, BasicSavingsAccount, CreditCardAccount, Customer, DepositAccount, Dollars, Email, LendingsAccount, StudentsCheckingAccount}
+import entity.{Bank, Dollars}
 
 import java.time.LocalDate
+import scala.util.Random
 
 object BankingApp {
   def main(args: Array[String]): Unit = {
     println("Bank app running")
 
-    val basicCheckingAccount = new BasicCheckingAccount(Dollars(200), 0.03)
-    val studentsCheckingAccount = new StudentsCheckingAccount(Dollars(100), 0.02)
-    val basicSavingsAccount = new BasicSavingsAccount(Dollars(100), 0.01, 2)
-    val creditCardAccount = new CreditCardAccount(20, 0.05, 10)
-    val allBankProducts = Set(basicCheckingAccount, studentsCheckingAccount, basicSavingsAccount, creditCardAccount)
+    val bank = new Bank("New Corporate Bank", "Scranton", "USA")
 
-    val customerMichael = new Customer("Michael", "Scott", Email("mscott", "dunder.com"), LocalDate.of(1962, 2, 23))
-    val customerJim = new Customer("Jim", "Halpert", Email("jhalpert", "dunder.com"), LocalDate.of(1972, 5, 16))
-    val allCustomers = Set(customerMichael, customerJim)
+    def getStartupCustomers: Seq[(String, String, String, String)] = {
+      Seq(
+        ("Michael", "Scott", "mscott@dunder.com", "1962-02-23"),
+        ("Jim", "Halpert", "jhalpert@dunder.com", "1972-05-16")
+      )
+    }
 
-    val michaelBasicAcc = new DepositAccount(customerMichael, basicCheckingAccount, Dollars(3234))
-    val michaelSavingsAcc = new DepositAccount(customerMichael, basicSavingsAccount, Dollars(654))
-    val michaelCreditAcc = new LendingsAccount(customerMichael, creditCardAccount, Dollars(1732))
+    def getStartupDepositProducts: Seq[(String, Int, Double)] = {
+      Seq(
+        ("BasicCheckingAccount", 4531, 0.03),
+        ("StudentsCheckingAccount", 223, 0.02),
+        ("BasicSavingsAccount", 736, 0.01)
+      )
+    }
 
-    val jimBasicAcc = new DepositAccount(customerJim, basicCheckingAccount, Dollars(1753))
-    val jimCreditAcc = new LendingsAccount(customerJim, creditCardAccount, Dollars(437))
+    def getStartupLendingProducts: Seq[(String, Double, Double, Double)] = {
+      Seq(
+        ("CreditCardAccount", 30, 0.05, 10)
+      )
+    }
 
-    val customersAccounts = Set(michaelBasicAcc, michaelSavingsAcc, michaelCreditAcc, jimBasicAcc, jimCreditAcc)
+    val customerIds = getStartupCustomers.map(c => bank.registerNewCustomer(c._1, c._2, c._3, c._4))
+    val depositProductIds = getStartupDepositProducts.map(d => bank.addNewDepositProduct(d._1, d._2, d._3))
+    val lendingProductIds = getStartupLendingProducts.map(l => bank.addNewLendingProduct(l._2, l._3, l._4))
 
-    val bank = new Bank("New Corporate Bank", "Scranton", "USA", allBankProducts, allCustomers, customersAccounts)
+    println(s"Bank: $bank")
+    println(s"Customers: $customerIds")
+    println(s"Deposit products: $depositProductIds")
+    println(s"Lending products: $lendingProductIds")
 
-    println(michaelBasicAcc)
-    michaelBasicAcc.makeDeposit(43)
-    println(michaelBasicAcc.getBalance)
-    michaelBasicAcc.makeWithdrawal(32)
-    println(michaelBasicAcc)
-    println(michaelSavingsAcc)
-    println(michaelCreditAcc)
-    println(jimBasicAcc.toString)
-    println(jimCreditAcc.toString)
-    jimCreditAcc.lendMoney(54)
-    println(jimCreditAcc.getBalance)
-    jimCreditAcc.makePayments(96)
-    print(jimCreditAcc)
+    val depositAccounts = for {
+      c <- customerIds
+      d <- depositProductIds
+    } yield bank.openNewDepositAccount(c, d, _: Dollars)
+
+    val random = new Random()
+    val depositAccountsIds = depositAccounts.map(a => a(Dollars(35 + random.nextInt(23))))
+
+    println(s"Deposit accounts: ${depositAccounts}")
+    println(s"Deposit accounts ids: $depositAccountsIds")
+
+    val lendingAccounts = for {
+      c <- customerIds
+      l <- lendingProductIds
+    } yield bank.openNewLendingAccount(c, l, _: Dollars)
+
+    val lendingAccountIds = lendingAccounts.map(a => a(Dollars(12 + random.nextInt(65))))
+
+    println(s"Lending accounts: $lendingAccounts")
+    println(s"Lending accounts ids: $lendingAccountIds")
+
+    val amountForTransaction = new Random(340)
+
+    depositAccountsIds.foreach(bank.depositMoney(_, Dollars(2 + amountForTransaction.nextInt(22))))
+    depositAccountsIds.foreach(bank.withdrawMoney(_, Dollars(1 + amountForTransaction.nextInt(62))))
+
+    lendingAccountIds.foreach(bank.payWithCreditCard(_, Dollars(1 + amountForTransaction.nextInt(12))))
+    lendingAccountIds.foreach(bank.payCreditCardDebt(_, Dollars(3 + amountForTransaction.nextInt(29))))
+
   }
 
 }

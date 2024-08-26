@@ -1,6 +1,9 @@
 package entity
 
+import java.util.UUID
+
 abstract class BankAccount {
+  val id: UUID = UUID.randomUUID()
   val bankCustomer: Customer
   val bankProduct: BankProducts
   def getBalance: Dollars
@@ -8,15 +11,15 @@ abstract class BankAccount {
 
 class DepositAccount(val bankCustomer: Customer, val bankProduct: BankDeposits, private var currentBalance: Dollars) extends BankAccount {
 
-  def makeDeposit(amount: Int): Unit = {
-    require(amount > 0, "deposit amount should be greater than zero")
-    println(s"$amount added to account balance")
+  def makeDeposit(amount: Dollars): Unit = {
+    require(amount > Dollars(0), "deposit amount should be greater than zero")
+    println(s"$amount added to account balance ${this.getBalance}")
     currentBalance += amount
   }
 
-  def makeWithdrawal(amount: Int): Unit = {
-    require(amount > 0 && currentBalance > 0, "deposit and balance should be greater than zero")
-    println(s"$amount withdraw from account balance")
+  def makeWithdrawal(amount: Dollars): Unit = {
+    require(amount > Dollars(0) && currentBalance > Dollars(0), "deposit and balance should be greater than zero")
+    println(s"$amount withdraw from account balance ${this.getBalance}")
     currentBalance -= amount
   }
 
@@ -27,15 +30,15 @@ class DepositAccount(val bankCustomer: Customer, val bankProduct: BankDeposits, 
 
 class LendingsAccount(val bankCustomer: Customer, val bankProduct: BankLendings, private var currentBalance: Dollars) extends BankAccount {
 
-  def makePayments(amount: Int): Unit = {
-    require(amount > 0 && currentBalance > 0, "deposit and balance should be greater than zero")
-    println(s"$amount payments made")
+  def makePayments(amount: Dollars): Unit = {
+    require(amount > Dollars(0) && currentBalance > Dollars(0), "deposit and balance should be greater than zero")
+    println(s"$amount payments made ${this.getBalance}")
     currentBalance += amount
   }
 
-  def lendMoney(amount: Int): Unit = {
-    require(amount > 0, "deposit amount should be greater than zero")
-    println(s"$amount lended from account balance")
+  def lendMoney(amount: Dollars): Unit = {
+    require(amount > Dollars(0), "deposit amount should be greater than zero")
+    println(s"$amount lended from account balance ${this.getBalance}")
     currentBalance -= amount
   }
 
